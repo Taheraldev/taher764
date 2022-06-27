@@ -34,13 +34,22 @@ async def download(url, path):
 async def unzipper_cb(unzip_bot: Client, query: CallbackQuery):
     if query.data == "megoinhome":
         await query.edit_message_text(text=Messages.START_TEXT.format(query.from_user.mention), reply_markup=Buttons.START_BUTTON)
-    
+
     elif query.data == "helpcallback":
-        await query.edit_message_text(text=Messages.HELP_TXT, reply_markup=Buttons.ME_GOIN_HOME)
-    
+        await query.edit_message_text(text=Messages.HELP_TXT, reply_markup=Buttons.HELP_BTNS)
+
+    elif query.data == "extracthelp":
+        await query.edit_message_text(text=Messages.EXTRACT_HELP, reply_markup=Buttons.HELP_MENU_BTN)
+
+    elif query.data == "upmodhelp":
+        await query.edit_message_text(text=Messages.UPMODE_HELP, reply_markup=Buttons.HELP_MENU_BTN)
+
+    elif query.data == "thumbhelp":
+        await query.edit_message_text(text=Messages.THUMB_HELP, reply_markup=Buttons.HELP_MENU_BTN)
+
     elif query.data == "aboutcallback":
         await query.edit_message_text(text=Messages.ABOUT_TXT, reply_markup=Buttons.ME_GOIN_HOME, disable_web_page_preview=True)
-    
+
     elif query.data.startswith("set_mode"):
         user_id = query.from_user.id
         mode = query.data.split("|")[1]
@@ -59,7 +68,7 @@ async def unzipper_cb(unzip_bot: Client, query: CallbackQuery):
                 url = r_message.text
                 # Double check
                 if not re.match(https_url_regex, url):
-                    return await query.message.edit("`هذا ليس عنوان url صالحًا 😑!(This is not a valid url 😑!)`")
+                    return await query.message.edit("`That's not a valid url 😑!`")
                 s = ClientSession()
                 async with s as ses:
                     # Get the file size
@@ -69,7 +78,7 @@ async def unzipper_cb(unzip_bot: Client, query: CallbackQuery):
                     # Checks if file is an archive using content-type header
                     unzip_resp = await ses.get(url, timeout=None)
                     if "application/" not in unzip_resp.headers.get('content-type'):
-                        return await query.message.edit("`هذا ليس أرشيف!(This is not an archive!)`")
+                        return await query.message.edit("`That's not an archive 😒!`")
                     if unzip_resp.status == 200:
                         # Makes download dir
                         os.makedirs(download_path)
@@ -77,15 +86,15 @@ async def unzipper_cb(unzip_bot: Client, query: CallbackQuery):
                         await unzip_bot.send_message(chat_id=Config.LOGS_CHANNEL, text=Messages.LOG_TXT.format(user_id, url, u_file_size))
                         s_time = time()
                         archive = f"{download_path}/archive_from_{user_id}{os.path.splitext(url)[1]}"
-                        await answer_query(query, f"**أحاول التنزيل!(I'm trying to download!)** \n\n**Url:** `{url}` \n\n`قد يستغرق هذا بعض الوقت ، اذهب وشرب القهوة! (This may take some time, go and drink coffee!)`", unzip_client=unzip_bot)
+                        await answer_query(query, f"**Trying to download!** \n\n**Url:** `{url}` \n\n`This may take a while, Go and grab a coffee ☕️!`", unzip_client=unzip_bot)
                         await download(url, archive)
                         e_time = time()
                     else:
-                        return await query.message.edit("**عذرًا ، لا يمكنني تنزيل عنوان URL هذا! \n\n Sorry, I can't download this URL!**")
-            
+                        return await query.message.edit("**Sorry I can't download that URL 🥺!**")
+
             elif splitted_data[1] == "tg_file":
                 if r_message.document is None:
-                    return await query.message.edit("`أعطني أرشيف لاستخراج!(Give me an archive to extract!)`")
+                    return await query.message.edit("`Give me an Archive to extract lmao!`")
                 # Makes download dir
                 os.makedirs(download_path)
                 # Send Logs
@@ -94,16 +103,17 @@ async def unzipper_cb(unzip_bot: Client, query: CallbackQuery):
                 s_time = time()
                 archive = await r_message.download(
                     file_name=f"{download_path}/archive_from_{user_id}{os.path.splitext(r_message.document.file_name)[1]}",
-                    progress=progress_for_pyrogram, progress_args=("**محاولة التنزيل!(Try downloading!)** \n", query.message, s_time)
-                    )
+                    progress=progress_for_pyrogram, progress_args=(
+                        "**Trying to Download!** \n", query.message, s_time)
+                )
                 e_time = time()
             else:
-                await answer_query(query, "لا يمكن العثور على التفاصيل! يرجى الاتصال بمجموعة الدعم!\n\n Details can not be found! Please contact the support group!", answer_only=True, unzip_client=unzip_bot)
-            
+                await answer_query(query, "Can't Find Details! Please contact support group!", answer_only=True, unzip_client=unzip_bot)
+
             await answer_query(query, Messages.AFTER_OK_DL_TXT.format(TimeFormatter(round(e_time-s_time) * 1000)), unzip_client=unzip_bot)
 
             if splitted_data[2] == "with_pass":
-                password = await unzip_bot.ask(chat_id=query.message.chat.id ,text="**من فضلك أرسل لي كلمة المرور 🔑(Please send me the password 🔑):**")
+                password = await unzip_bot.ask(chat_id=query.message.chat.id, text="**Please send me the password 🔑:**")
                 ext_s_time = time()
                 extractor = await extr_files(path=ext_files_dir, archive_path=archive, password=password.text)
                 ext_e_time = time()
@@ -121,18 +131,18 @@ async def unzipper_cb(unzip_bot: Client, query: CallbackQuery):
                     except:
                         pass
                     return await unzip_bot.send_message(chat_id=query.message.chat.id, text=Messages.EXT_FAILED_TXT)
-            
+
             await answer_query(query, Messages.EXT_OK_TXT.format(TimeFormatter(round(ext_e_time-ext_s_time) * 1000)), unzip_client=unzip_bot)
-            
+
             # Upload extracted files
             paths = await get_files(path=ext_files_dir)
             i_e_buttons = await make_keyboard(paths=paths, user_id=user_id, chat_id=query.message.chat.id)
             try:
-                await query.message.edit("`حدد الملفات المراد تحميلها!\n\n Select the files to upload! `", reply_markup=i_e_buttons)
+                await query.message.edit("`Select Files to Upload!`", reply_markup=i_e_buttons)
             except:
-                await unzip_bot.send_message(chat_id=query.message.chat.id, text="`حدد الملفات المراد تحميلها!\n\n Select the files to upload! `", reply_markup=i_e_buttons)
+                await unzip_bot.send_message(chat_id=query.message.chat.id, text="`Select Files to Upload!`", reply_markup=i_e_buttons)
                 await query.message.delete()
-            
+
         except Exception as e:
             try:
                 await query.message.edit(Messages.ERROR_TXT.format(e))
@@ -149,18 +159,17 @@ async def unzipper_cb(unzip_bot: Client, query: CallbackQuery):
         if not paths:
             if os.path.isdir(f"{Config.DOWNLOAD_LOCATION}/{spl_data[1]}"):
                 shutil.rmtree(f"{Config.DOWNLOAD_LOCATION}/{spl_data[1]}")
-            return await query.message.edit("`لقد أرسلت لك بالفعل هذه الملفات 😐 ، لا تطلب مني إعادة الإرسال!\n\nI've already sent you these files 😐, don't ask me to resend!`")
-        
-        await query.answer("إرسال هذا الملف لك. أرجو الإنتظار! \n\n Send this file to you. please wait!")
-        await send_file(unzip_bot=unzip_bot,
-                        c_id=spl_data[2],
+            return await query.message.edit("`I've already sent you those files 😐, Don't ask me to resend 😒!`")
+
+        await query.answer("Sending that file to you. Please wait!")
+        await send_file(c_id=spl_data[2],
                         doc_f=paths[int(spl_data[3])],
                         query=query,
                         full_path=f"{Config.DOWNLOAD_LOCATION}/{spl_data[1]}"
-                    )
+                        )
 
         # Refreshing Inline keyboard
-        await query.message.edit("`تحديث ⏳ Update ...`")
+        await query.message.edit("`Refreshing ⏳...`")
         rpaths = await get_files(path=file_path)
         # There are no files let's die
         if not rpaths:
@@ -168,11 +177,10 @@ async def unzipper_cb(unzip_bot: Client, query: CallbackQuery):
                 shutil.rmtree(f"{Config.DOWNLOAD_LOCATION}/{spl_data[1]}")
             except:
                 pass
-            return await query.message.edit("`إرسال هذا الملف لك. أرجو الإنتظار!\n\n Send this file to you. please wait! `")
+            return await query.message.edit("**Successfully Uploaded!** \n\n **Join @NexaBotsUpdates ❤️**")
         i_e_buttons = await make_keyboard(paths=rpaths, user_id=query.from_user.id, chat_id=query.message.chat.id)
-        await query.message.edit("حدد الملفات المراد تحميلها!\n\n Select the files to download!", reply_markup=i_e_buttons)
-    
-    
+        await query.message.edit("Select Files to Upload!", reply_markup=i_e_buttons)
+
     elif query.data.startswith("ext_a"):
         spl_data = query.data.split("|")
         file_path = f"{Config.DOWNLOAD_LOCATION}/{spl_data[1]}/extracted"
@@ -182,27 +190,26 @@ async def unzipper_cb(unzip_bot: Client, query: CallbackQuery):
                 shutil.rmtree(f"{Config.DOWNLOAD_LOCATION}/{spl_data[1]}")
             except:
                 pass
-            return await query.message.edit("`إرسال هذا الملف لك. أرجو الإنتظار!\n\n Send this file to you. please wait! `")
-        await query.answer("أحاول إرسال جميع الملفات إليك. أرجو الإنتظار!\n\n I am trying to send all the files to you. please wait! ")
+            return await query.message.edit("`I've already sent you those files 😐, Don't ask me to resend 😒!`")
+        await query.answer("Trying to send all files to you. Please wait!")
         for file in paths:
-            await send_file(unzip_bot=unzip_bot,
-                            c_id=spl_data[2],
+            await send_file(c_id=spl_data[2],
                             doc_f=file,
                             query=query,
                             full_path=f"{Config.DOWNLOAD_LOCATION}/{spl_data[1]}"
-                        )
-        await query.message.edit("**تم الرفع بنجاح!(Uploaded successfully!)** \n\n **أنظم(JION) @engineering_electrical9 ❤️**")
+                            )
+        await query.message.edit("**Successfully Uploaded!** \n\n **Join @NexaBotsUpdates ❤️**")
         try:
             shutil.rmtree(f"{Config.DOWNLOAD_LOCATION}/{spl_data[1]}")
         except Exception as e:
             await query.message.edit(Messages.ERROR_TXT.format(e))
-    
+
     elif query.data == "cancel_dis":
         try:
             shutil.rmtree(f"{Config.DOWNLOAD_LOCATION}/{query.from_user.id}")
-            await query.message.edit(Messages.CANCELLED_TXT.format("(Operation canceled)تم إلغاء العملية"))
+            await query.message.edit(Messages.CANCELLED_TXT.format("Process Cancelled"))
         except:
-            return await query.answer("لا يوجد شيء لإزالة \n\n There is nothing to remove  🥴", show_alert=True)
-    
+            return await query.answer("There is nothing to remove lmao!", show_alert=True)
+
     elif query.data == "nobully":
-        await query.message.edit("**حسنا حسنا! لن أحذف هذه الملفات 😂☻!\n\n Well Well! I will not delete these files 😂☻!**")
+        await query.message.edit("**Ok Ok! I won't delete those files 😂!**")
