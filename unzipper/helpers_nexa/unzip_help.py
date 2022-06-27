@@ -1,9 +1,12 @@
-# Copyright (c) 2021 Itz-fork
+# Copyright (c) 2022 Itz-fork
 # Don't kang this else your dad is gae
 
 import math
 import time
 
+from pyrogram import enums
+from functools import partial
+from asyncio import get_running_loop
 from unzipper import unzipperbot as client
 from config import Config
 
@@ -22,7 +25,7 @@ async def progress_for_pyrogram(current, total, ud_type, message, start):
         elapsed_time = TimeFormatter(milliseconds=elapsed_time)
         estimated_total_time = TimeFormatter(milliseconds=estimated_total_time)
 
-        progress = "[{0}{1}] \n**Process(معالجة)⏳**: {2}%\n".format(
+        progress = "[{0}{1}] \n**Process**: {2}%\n".format(
             ''.join(["█" for i in range(math.floor(percentage / 5))]),
             ''.join(["░" for i in range(20 - math.floor(percentage / 5))]),
             round(percentage, 2))
@@ -34,7 +37,7 @@ async def progress_for_pyrogram(current, total, ud_type, message, start):
             estimated_total_time if estimated_total_time != '' else "0 s"
         )
         try:
-            await message.edit(text="{}\n {} \n\n** @engineering_electrical9:❤قناة التحديثات البوت (updates channel )**".format(ud_type,tmp))
+            await message.edit(text="{}\n {} \n\n**Powered by @engineering_electrical9**".format(ud_type, tmp))
         except:
             pass
 
@@ -63,21 +66,30 @@ def TimeFormatter(milliseconds: int) -> str:
         ((str(milliseconds) + "ms, ") if milliseconds else "")
     return tmp[:-2]
 
+
+# Execute blocking functions asynchronously
+async def run_cmds_on_cr(func, **kwargs):
+    loop = get_running_loop()
+    return await loop.run_in_executor(
+        None,
+        partial(func, kwargs)
+    )
+
+
 # Checking log channel
 def check_logs():
     try:
         if Config.LOGS_CHANNEL:
             c_info = client.get_chat(chat_id=Config.LOGS_CHANNEL)
-            if c_info.type != "channel":
-                print("؟ الدردشة ليست قناة")
-                return
+            if c_info.type != enums.ChatType.CHANNEL:
+                return print("TF? Chat is not a channel")
             elif c_info.username is not None:
-                print("؟ الدردشة ليست خاصة")
-                return
+                return print("TF? Chat is not private")
             else:
-                client.send_message(chat_id=Config.LOGS_CHANNEL, text="`بدا البوت باستخراج بنجاح!` \n\n**Powered by ❤ @engineering_electrical9**")
+                client.send_message(
+                    chat_id=Config.LOGS_CHANNEL, text="`بدا البوت باستخراج بنجاح!` \n\n**Powered by ❤ @engineering_electrical9**")
         else:
-            print("لم يتم إعطاء معرف قناة السجل! إيما سترحل الآن!")
+            print("No Log Channel ID is Given! Imma leaving Now!")
             exit()
     except:
-        print("حدث خطأ أثناء التحقق من قناة السجل! تأكد من أنك لست غبيًا بما يكفي لتقديم معرف قناة تسجيل خاطئ!")
+        print("Error Happend while checking Log Channel! Make sure you're not dumb enough to provide a wrong Log Channel ID!")
