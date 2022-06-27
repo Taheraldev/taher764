@@ -1,30 +1,23 @@
-# Copyright (c) 2021 Itz-fork
+# Copyright (c) 2022 Itz-fork
 # Don't kang this else your dad is gae
 import os
-import asyncio
 import re
 import shutil
 import psutil
+import asyncio
 
-from pyrogram import Client, filters
-from pyrogram.types import Message
-from pyrogram.errors import FloodWait
-
-from .bot_data import Buttons, Messages
-from unzipper.helpers_nexa.database import (
-    check_user,
-    del_user,
-    count_users,
-    get_users_list,
-    # Banned Users db
-    add_banned_user,
-    del_banned_user,
-    count_banned_users,
-    get_upload_mode
-)
-from unzipper.helpers_nexa.unzip_help import humanbytes
 from config import Config
-
+from pyrogram import Client, filters
+from pyrogram.errors import FloodWait
+from pyrogram.types import Message
+from unzipper.helpers_nexa.database.users import (add_banned_user,  # Banned Users db
+                                                  check_user, get_users_list,
+                                                  count_users, count_banned_users,
+                                                  del_user, del_banned_user)
+from unzipper.helpers_nexa.database.thumbnail import save_thumbnail, get_thumbnail, del_thumbnail
+from unzipper.helpers_nexa.database.upload_mode import get_upload_mode
+from unzipper.helpers_nexa.unzip_help import humanbytes
+from .bot_data import Buttons, Messages
 
 # Regex for http/https urls
 https_url_regex = ("((http|https)://)(www.)?" +
@@ -53,7 +46,10 @@ async def clean_ma_files(_, message: Message):
 
 @Client.on_message(filters.incoming & filters.private & filters.regex(https_url_regex) | filters.document)
 async def extract_dis_archive(_, message: Message):
-    unzip_msg = await message.reply("`جارٍ المعالجة Processing ⚙️ ...`", reply_to_message_id=message.message_id)
+    unzip_msg = await message.reply("`Processing ⚙️...`", reply_to_message_id=message.id)
+    # Due to https://t.me/Nexa_bots/38823
+    if not message.from_user:
+        return await unzip_msg.edit("`Ayo, you ain't a user 🤨?")
     user_id = message.from_user.id
     download_path = f"{Config.DOWNLOAD_LOCATION}/{user_id}"
     if os.path.isdir(download_path):
@@ -65,13 +61,44 @@ async def extract_dis_archive(_, message: Message):
     else:
         await unzip_msg.edit("`أصمد! ما الذي يجب علي استخراجه 🙄😳؟\n Hold up! What Should I Extract 😳?`")
 
+# Thumbnail stuff
+@Client.on_message(filters.private & filters.command(["save", "set_thumb"]))
+async def save_dis_thumb(_, message: Message):
+    prs_msg = await message.reply("`Processing ⚙️...`", reply_to_message_id=message.id)
+    rply = message.reply_to_message
+    if not rply or not rply.photo:
+        return await prs_msg.edit("`Reply to an image file to save it as a thumbnail!`")
+    await save_thumbnail(message.from_user.id, rply)
+    await prs_msg.edit("**Successfully saved the thumbnail ✅!**")
+
+
+@Client.on_message(filters.private & filters.command(["thget", "get_thumb"]))
+async def give_my_thumb(_, message: Message):
+    prs_msg = await message.reply("`Processing ⚙️...`", reply_to_message_id=message.id)
+    gthumb = await get_thumbnail(message.from_user.id)
+    if not gthumb:
+        return await prs_msg.edit("No thumbnails found. Please set one using `/set_thumb` command!")
+    await prs_msg.delete()
+    await message.reply_photo(gthumb)
+    os.remove(gthumb)
+
+
+@Client.on_message(filters.private & filters.command(["thdel", "del_thumb"]))
+async def delete_my_thumb(_, message: Message):
+    prs_msg = await message.reply("`Processing ⚙️...`", reply_to_message_id=message.id)
+    texist = await get_thumbnail(message.from_user.id)
+    if not texist:
+        return await prs_msg.edit("`When saving a thumbnail?`")
+    await del_thumbnail(message.from_user.id)
+    os.remove(texist)
+    await prs_msg.edit("**Successfully deleted the thumbnail ✅!**")
+
 
 # Database Commands
 @Client.on_message(filters.private & filters.command(["mode", "setmode"]))
 async def set_up_mode_for_user(_, message: Message):
     upload_mode = await get_upload_mode(message.from_user.id)
     await message.reply(Messages.SELECT_UPLOAD_MODE_TXT.format(upload_mode), reply_markup=Buttons.SET_UPLOAD_MODE_BUTTONS)
-
 
 @Client.on_message(filters.private & filters.command("stats") & filters.user(Config.BOT_OWNER))
 async def send_stats(_, message: Message):
@@ -87,21 +114,46 @@ async def send_stats(_, message: Message):
     total_banned_users = await count_banned_users()
     await stats_msg.edit(f"""
 **💫 احصائيات البوت الحالية 💫**
-
 **👥 Users:** 
  ↳**المستخدمون في قاعدة البيانات:** `{total_users}`
  ↳**إجمالي المستخدمين المحظورين:** `{total_banned_users}`
-
-
 **💾 استخدام القرص ،**
  ↳**Total Disk Space(مساحة قرص) :** `{total}`
  ↳**Used(مستخدم):** `{used}({disk_usage}%)`
  ↳**Free(مجاني):** `{free}`
-
-
 **🎛 Hardware Usage(استخدام الأجهزة):-**
  ↳**CPU Usage(استخدام المعالج):** `{cpu_usage}%`
  ↳**RAM Usage(استخدام الرام):** `{ram_usage}%`"""
+                         )
+
+@Client.on_message(filters.private & filters.command("stats") & filters.user(Config.BOT_OWNER))
+async def send_stats(_, message: Message):
+    stats_msg = await message.reply("`جارٍ المعالجة ⚙️ ...`")
+    total, used, free = shutil.disk_usage(".")
+    total = humanbytes(total)
+    used = humanbytes(used)
+    free = humanbytes(free)
+    net_usage = psutil.net_io_counters()
+    cpu_usage = psutil.cpu_percent()
+    ram_usage = psutil.virtual_memory().percent
+    disk_usage = psutil.disk_usage('/').percent
+    total_users = await count_users()
+    total_banned_users = await count_banned_users()
+    await stats_msg.edit(f"""
+**💫 Current Bot Stats 💫**
+**👥 Users:** 
+ ↳**Users in Database:** `{total_users}`
+ ↳**Total Banned Users:** `{total_banned_users}`
+**🌐 Bandwith Usage,**
+ ↳ **Sent:** `{humanbytes(net_usage.bytes_sent)}`
+ ↳ **Received:** `{humanbytes(net_usage.bytes_recv)}`
+**💾 Disk Usage,**
+ ↳**Total Disk Space:** `{total}`
+ ↳**Used:** `{used}({disk_usage}%)`
+ ↳**Free:** `{free}`
+**🎛 Hardware Usage,**
+ ↳**CPU Usage:** `{cpu_usage}%`
+ ↳**RAM Usage:** `{ram_usage}%`"""
                          )
 
 
@@ -118,13 +170,13 @@ async def _do_broadcast(message, user):
 
 @Client.on_message(filters.private & filters.command("broadcast") & filters.user(Config.BOT_OWNER))
 async def broadcast_dis(_, message: Message):
-    bc_msg = await message.reply("`جارٍ المعالجة ⚙️ ...`")
+    bc_msg = await message.reply("`Processing ⚙️...`")
     r_msg = message.reply_to_message
     if not r_msg:
-        return await bc_msg.edit("`الرد على رسالة للبث!`")
+        return await bc_msg.edit("`جارٍ المعالجة ⚙️ ...`")
     users_list = await get_users_list()
     # trying to broadcast
-    await bc_msg.edit("`بدأ البث ، قد يستغرق هذا الوقت 🥱!`")
+    await bc_msg.edit("`الرد على رسالة للبث!`")
     success_no = 0
     failed_no = 0
     total_users = await count_users()
@@ -136,30 +188,28 @@ async def broadcast_dis(_, message: Message):
             failed_no += 1
     await bc_msg.edit(f"""
 **اكتمل البث ✅!**
-
 **إجمالي المستخدمين:** `{total_users}`
 **الردود الناجحة:** `{success_no}`
 **الردود الفاشلة:** `{failed_no}`
     """)
 
-
 @Client.on_message(filters.private & filters.command("ban") & filters.user(Config.BOT_OWNER))
 async def ban_user(_, message: Message):
-    ban_msg = await message.reply("`جارٍ المعالجة ⚙️ ...`")
+    ban_msg = await message.reply("`Processing ⚙️...`")
     try:
         user_id = message.text.split(None, 1)[1]
     except:
-        return await ban_msg.edit("`أعط معرف المستخدم للحظر!`")
+        return await ban_msg.edit("`Give a user id to ban!`")
     await add_banned_user(user_id)
-    await ban_msg.edit(f"**تم حظر هذا المستخدم بنجاح ✅** \n\n**معرف:** `{user_id}`")
+    await ban_msg.edit(f"**Successfully Banned That User ✅** \n\n**User ID:** `{user_id}`")
 
 
 @Client.on_message(filters.private & filters.command("unban") & filters.user(Config.BOT_OWNER))
 async def unban_user(_, message: Message):
-    unban_msg = await message.reply("`جارٍ المعالجة ⚙️ ...`")
+    unban_msg = await message.reply("`Processing ⚙️...`")
     try:
         user_id = message.text.split(None, 1)[1]
     except:
-        return await unban_msg.edit("`إعطاء معرف المستخدم لألغاء حظر`")
+        return await unban_msg.edit("`Give a user id to unban!`")
     await del_banned_user(user_id)
-    await unban_msg.edit(f"**تم بنجاح إلغاء حظر هذا المستخدم ✅** \n\n**معرف:** `{user_id}`")
+    await unban_msg.edit(f"**Successfully Unbanned That User ✅** \n\n**User ID:** `{user_id}`")
