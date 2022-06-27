@@ -52,18 +52,18 @@ async def send_file(c_id, doc_f, query, full_path):
             # Uploads the file to gofile.io
             upmsg = await unzipperbot.send_message(
                 chat_id=c_id,
-                text="`حجم الملف كبير جدًا بحيث لا يمكن إرساله في تليكرام !  أحاول تحميل هذا الملف إلى gofile.io الآن 😉!\nFile Size is too large to send in telegram 🥶! Trying to upload this file to gofile.io now 😉!`"
-             )
+                text="`File Size is too large to send in telegram 🥶! Trying to upload this file to gofile.io now 😉!`"
+            )
             try:
                 ga = Async_Gofile()
                 gfio = await ga.upload(doc_f)
-                await upmsg.edit("** تم تحميل ملفك للذهاب إلى ملف! انقر فوق الزر أدناه لتنزيله 👇 **\n**Your file has been uploaded to gofile! Click on the below button to download it 👇**", reply_markup=Buttons().GOFILE_BTN(gfio["downloadPage"]))
+                await upmsg.edit("**Your file has been uploaded to gofile! Click on the below button to download it 👇**", reply_markup=Buttons().GOFILE_BTN(gfio["downloadPage"]))
             except:
-                await upmsg.edit("`فشل التحميل ،حظ أوفر  في مرة قادمة Upload failed, Better luck next time 😔!`")
+                await upmsg.edit("`Upload failed, Better luck next time 😔!`")
             os.remove(doc_f)
             return
 
-        tgupmsg = await unzipperbot.send_message(c_id, "`المعالجة Processing ⚙️...`")
+        tgupmsg = await unzipperbot.send_message(c_id, "`Processing ⚙️...`")
         stm = time()
         # Uplaod type: Video
         if cum == "video":
@@ -76,27 +76,27 @@ async def send_file(c_id, doc_f, query, full_path):
                 duration=int(vid_duration) if vid_duration.isnumeric() else 0,
                 thumb=sthumb,
                 progress=progress_for_pyrogram,
-                progress_args=("**محاولة لتحميل 😇 Trying to upload 😇** \n", tgupmsg, stm))
+                progress_args=("**Trying to upload 😇** \n", tgupmsg, stm))
         # Upload type: Document
         else:
             sthumb = await get_or_gen_thumb(c_id, doc_f)
             await unzipperbot.send_document(
                 chat_id=c_id,
                 document=doc_f,
-                caption="** استخرج بواسطة Extracted by: @unzipunrarprobot**",
+                caption="**Extracted by @NexaUnzipper_Bot**",
                 thumb=sthumb,
                 progress=progress_for_pyrogram,
-                progress_args=("**محاولة لتحميل Trying to upload 😇** \n", tgupmsg, stm))
+                progress_args=("**Trying to upload 😇** \n", tgupmsg, stm))
         etm = time()
         # Edit the progress message
         await tgupmsg.edit(f"""
 **Successfully uploaded!**
-** تم تحميله بنجاح! **      
-**File name(اسم ملف):** `{os.path.basename(doc_f)}`
-**Uploaded in(تم تحميل  في):** `{TimeFormatter(round(etm - stm))}`
+        
+**File name:** `{os.path.basename(doc_f)}`
+**Uploaded in:** `{TimeFormatter(round(etm - stm))}`
 
 
-**Join  @unzipunrarprobot❤️**
+**Join @NexaBotsUpdates ❤️**
         """)
         # Cleanup (Added try except as thumbnail is sucking this code's duck)
         try:
@@ -110,9 +110,9 @@ async def send_file(c_id, doc_f, query, full_path):
         return await send_file(c_id, doc_f, query, full_path)
     except FileNotFoundError:
         try:
-            return await query.answer("عذرا! لا يمكنني العثور على هذا الملفSorry! I can't find that file", show_alert=True)
+            return await query.answer("Sorry! I can't find that file", show_alert=True)
         except:
-            return await unzipperbot.send_message(c_id, "عذرا! لا يمكنني العثور على هذا الملف\nSorry! I can't find that file")
+            return await unzipperbot.send_message(c_id, "Sorry! I can't find that file")
     except BaseException as e:
         print(e)
         shutil.rmtree(full_path)
