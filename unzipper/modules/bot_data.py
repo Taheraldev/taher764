@@ -3,223 +3,186 @@
 # This whole file is b.s btw
 
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
-
 # Inline buttons
-
 
 class Buttons:
     START_BUTTON = InlineKeyboardMarkup([
-        [
-            InlineKeyboardButton("Help 📜", callback_data="helpcallback"),
-            InlineKeyboardButton("About ⁉️", callback_data="aboutcallback")
-        ]
-    ])
-
-    HELP_BTNS = InlineKeyboardMarkup([
-        [
-            InlineKeyboardButton(
-                "Extract 🗃", callback_data="extracthelp"),
-            InlineKeyboardButton(
-                "Upload 📤", callback_data="upmodhelp")
-        ],
-        [
-            InlineKeyboardButton("Thumbnail 🖼", callback_data="thumbhelp")
-        ],
-        [
-            InlineKeyboardButton("Back 🏡", callback_data="megoinhome")
-        ]
-    ])
-
-    HELP_MENU_BTN = InlineKeyboardMarkup([
-        [
-            InlineKeyboardButton("Back to Help Menu ◀️",
-                                 callback_data="helpcallback")
-        ]
-    ])
-
+            [
+                InlineKeyboardButton("مساعدة | help 📜", callback_data="helpcallback"),
+                InlineKeyboardButton("حول | about ⁉️", callback_data="aboutcallback")
+            ]
+        ])
+    
     CHOOSE_E_F__BTNS = InlineKeyboardMarkup([
-        [
-            InlineKeyboardButton(
-                "File Extract 📂", callback_data="extract_file|tg_file|no_pass"),
-        ],
-        [
-            InlineKeyboardButton(
-                "File (Password) Extract 📂", callback_data="extract_file|tg_file|with_pass")
-        ],
-        [
-            InlineKeyboardButton("Cancel ❌", callback_data="cancel_dis")
-        ]
-    ])
+            [
+                InlineKeyboardButton("استخراج الملف|extract file 📂", callback_data="extract_file|tg_file|no_pass"),
+            ],
+            [
+                InlineKeyboardButton("استخراج ملف |extract file password📁", callback_data="extract_file|tg_file|with_pass")
+            ],
+            [
+                InlineKeyboardButton("إلغاء | cancel ❌", callback_data="cancel_dis")
+            ]
+        ])
 
     CHOOSE_E_U__BTNS = InlineKeyboardMarkup([
-        [
-            InlineKeyboardButton(
-                "🔗 Url Extract 📂", callback_data="extract_file|url|no_pass"),
-        ],
-        [
-            InlineKeyboardButton(
-                "🔗 (Password) Url Extract 📂", callback_data="extract_file|url|with_pass")
-        ],
-        [
-            InlineKeyboardButton("Cancel ❌", callback_data="cancel_dis")
-        ]
-    ])
+            [
+                InlineKeyboardButton("🔗 استخراج عنوان | Url Extract 📂", callback_data="extract_file|url|no_pass"),
+            ],
+            [
+                InlineKeyboardButton("🔗 استخراج عنوان | Url Extract Password 📂", callback_data="extract_file|url|with_pass")
+            ],
+            [
+                InlineKeyboardButton("إلغاء | cancel ❌", callback_data="cancel_dis")
+            ]
+        ])
 
     CLN_BTNS = InlineKeyboardMarkup([
-        [
-            InlineKeyboardButton("Clean My Files 😇",
-                                 callback_data="cancel_dis")
-        ],
-        [
-            InlineKeyboardButton("TF! Nooo 😳", callback_data="nobully")
-        ]
-    ])
-
+            [
+                InlineKeyboardButton("😇تنظيف ملفاتي | clean files 😇", callback_data="cancel_dis")
+            ],
+            [
+                InlineKeyboardButton("😒 لا تنظف |no clean 😒", callback_data="nobully")
+            ]
+        ])
+    
     ME_GOIN_HOME = InlineKeyboardMarkup([
-        [
-            InlineKeyboardButton("Back 🏡", callback_data="megoinhome")
-        ]
-    ])
+            [
+                InlineKeyboardButton("رجوع | Back 🏡", callback_data="megoinhome")
+            ]
+        ])
 
     SET_UPLOAD_MODE_BUTTONS = InlineKeyboardMarkup([
-        [
-            InlineKeyboardButton("As Doc 📁", callback_data="set_mode|doc")
-        ],
-        [
-            InlineKeyboardButton(
-                "As Video 📹", callback_data="set_mode|video")
-        ]
-    ])
-
-    def GOFILE_BTN(glink):
-        return InlineKeyboardMarkup([
             [
-                InlineKeyboardButton("Gofile link 🔗", url=glink)
+                InlineKeyboardButton("كمستند | doc 📄", callback_data="set_mode|doc")
+            ],
+            [
+                InlineKeyboardButton("كفيديو | video 📹 ", callback_data="set_mode|video")
             ]
         ])
 
 
 class Messages:
     START_TEXT = """
-Hi **{}**, I'm **Nexa Unzipper Bot** 😇!
-
-`I can extract archives like zip, rar, tar etc.`
-
-**Made with ❤️ by @NexaBotsUpdates**
+ مرحبًا {} ، أنا بوت فك ضغط عن ملفات 😇🗂!
+`يمكنني استخراج أرشيفات مثل zip و rar و tar إلخ.`
+𝐇𝐈 𝐈 𝐁𝐎𝐓 𝐃𝐄𝐂𝐎𝐌𝐏𝐑𝐄𝐒𝐒 𝐅𝐈𝐋𝐄𝐒 😇
+`𝙸 𝙲𝙰𝙽 𝙴𝚇𝚃𝚁𝙰𝙲𝚃 𝙰𝚁𝙲𝙷𝙸𝚅𝙴𝚂 𝙻𝙸𝙺𝙴 𝚉𝙸𝙿, 𝚁𝙰𝚁, 𝚃𝙰𝚁 𝙴𝚃𝙲.`
+**Dev&Eng: @ta_ja199 👨🏻‍💻**
+[⭐️ تقييم البوت |Rate bot⭐️](https://t.me/tlgrmcbot?start=unzipunrarprobot-review)
     """
 
-    HELP_TXT = """Get help by clicking on these buttons 😇"""
-
-    EXTRACT_HELP = """
+    HELP_TXT = """
+**كيف تستخرج؟ 🤔**
+`1. أرسل الملف أو الرابط الذي تريد استخراجه.`
+`2. انقر فوق الزر "استخراج" (إذا قمت بإرسال ارتباط ، فاستخدم الزر "استخراج عنوان URL". إذا كان ملفًا ، استخدم الزر "استخراج ملف").`
+**كيف تغير وضع التحميل؟ 🤔**
+ `أرسل` **/mode** `الأمر إلى الروبوت. يمكنك تغيير وضع التحميل من هناك.`
+**ملاحظة:**
+    **1.** `إذا كان أرشيفك محميًا بكلمة مرور ، حدد` **(كلمة المرور) استخراج 📂** `الوضع. البوت ما يعلم الغيب🙄 لمعرفة كلمة مرور ملفك ، لذا إذا حدث هذا ، فما عليك سوى إرسال كلمة المرور هذه!`
+    
+    **2.** `من فضلك لا ترسل ملفات تالفة! إذا قمت بإرسال واحد عن طريق الخطأ فقط أرسل أمر ` **/clean** 
+    
+    **3.** `إذا كان الأرشيف الخاص بك يحتوي على 95 ملفًا أو أكثر ، فلن يتمكن برنامج الروبوت من إظهار جميع الملفات المستخرجة للاختيار من بينها. لذلك في هذه الحالة ، إذا لم تتمكن من رؤية ملفك في الأزرار ، فما عليك سوى النقر فوق` "تحميل الكل ♻️" `زر. سيرسل لك جميع الملفات المستخرجة!`
 **How To Extract? 🤔**
-
-**1.** `Send the file or link that you want to extract.`
-**2.** `Click on extract button (If you sent a link use "Url Extract" button. If it's a file just use "File Extract" button).`
-
-
+`1. Send the file or link that you want to extract.`
+`2. Click on extract button (If you sent a link use "Url Extract" button. If it's a file just use "File Extract" button).`
+**How To Change Upload Mode? 🤔**
+ `Send` **/mode** `command to the bot. You can change upload mode from there.`
 **Note:**
     **1.** `If your archive is password protected select` **(Password) Extract 📂** `mode. Bot isn't a GOD to know your file's password so If this happens just send that password!`
     
     **2.** `Please don't send corrupted files! If you sent a one by a mistake just send` **/clean** `command!`
     
-    **3.** `If your archive have 95 or more files in it then bot can't show all of extracted files to select from. So in that case if you can't see your file in the buttons just click on` "Upload All ♻️" `button. It'll send all extracted files to you!`
-    """
-
-    UPMODE_HELP = """
-**How To Change Upload Mode? 🤔**
-
-**1.** `Send` **/mode** `command to the bot.`
-**2.** `Select the appropriate option.`
-    """
-
-    THUMB_HELP = """
-**How To Change Thumbnail? 🤔**
-
-By default, videos uses a thumbnail generated by `ffmpeg` and files doesn't have one.
-If you want to set-up your own thumbnail, you can do so using following commands 👇,
-
-
-    • **/set_thumb** - To set a thumbnail
-
-    • **/get_thumb** - To get the current thumbnail
-
-    • **/del_thumb** - To delete the current thumbnail
-    """
+    **3.** `If your archive have 95 or more files in it then bot can't show all of extracted files to select from. So in that case if you can't see your file in the buttons just click on` "Upload All ♻️" `button. It'll send all extracted files to you!`  
+ """
 
     ABOUT_TXT = """
-**About Nexa Unzipper Bot,**
-
-✘ **Language:** [Python](https://www.python.org/)
-✘ **Framework:** [Pyrogram](https://docs.pyrogram.org/)
-✘ **Source Code:** [Itz-fork/Unzipper-Bot](https://github.com/Itz-fork/Unzipper-Bot)
-✘ **Developer:** [Itz-fork](https://github.com/Itz-fork)
-
-
-**Made with ❤️ by @NexaBotsUpdates**
+**حول بوت فك الضغط**
+**About the decompression bot**
+**🤖 Bot(البوت)**
+✘ **Name(أسم):** ZIP & RAR EXTRACTOR
+✘ **Username(معرف):** @unzipunrarprobot
+✘ **Version(إلإصدار):** 2.5
+ 
+ 
+**👤 Developer(المطور)**
+✘ **Name(أسم ):** Taher Alnoori (طاهر النوري)
+✘ **Username(معرف):** @ta_ja199 
+✘ **Instagram(انستا)🎛:**[Click here | إضغط  هنا] (https://www.instagram.com/ta_9_ja/)
+✘ **Website(موقع)🌐:**[Click here | إضغط  هنا](https://electrical-engineer-cc40b.web.app)
+✘ **⭐️ تقييم البوت ⭐️:** [⭐️Rate⭐️](https://t.me/tlgrmcbot?start=unzipunrarprobot-review)
+✘ **قناة البوت:** [channal dev taher](https://t.me/engineering_electrical9)
+✘ **موقع بوت:** [website dev taher](https://electrical-engineer-cc40b.web.app/)
+✘ **استفسار ودعم:** [dev Taher](https://t.me/ta_ja199)
+✘ **⭐️تعديل على pdf ⭐️:** [⭐️pdf tools⭐️](https://t.me/i2pdfbot)
+**Made with ❤️ by Dev&Eng:- @ta_ja199**
     """
 
     LOG_TXT = """
 **Extract Log 📝!**
-
 **User ID:** `{}`
 **File Name:** `{}`
 **File Size:** `{}`
     """
 
     AFTER_OK_DL_TXT = """
+**تم التنزيل بنجاح**
 **Successfully Downloaded**
-
-**Download time:** `{}`
-**Status:** `Trying to extract the archive`
+**Download time(وقت التحميل):** `{}`
+**Status(الحالة):** `محاولة استخراج الأرشيف`
     """
 
     EXT_OK_TXT = """
-**Extraction Successfull!**
-
-**Extraction time:** `{}`
-**Status:** `Trying to upload`
+**تم الاستخراج بنجاح!**
+**𝚂𝚄𝙲𝙲𝙴𝚂𝚂𝙵𝚄𝙻𝙻𝚈 𝙴𝚇𝚃𝚁𝙰𝙲𝚃𝙴𝙳!**
+**Extraction time(وقت الاستخراج:):** `{}`
+**الحالة:** `في محاولة لتحميل`
     """
 
     EXT_FAILED_TXT = """
-**Extraction Failed 😕!**
-
-**What to do?**
-
- - `Please make sure archive isn't corrupted`
- - `Please make sure that you selected the right mode!`
- - `May be Your archive format isn't supported 😔`
-
-**Please report this at @Nexa_bots if you think this is a serious error**
+**فشل الاستخراج 😕!**
+**EXTRACTION FAILED 😕!**
+**ما يجب القيام به؟**
+ - `يرجى التأكد من عدم تلف الأرشيف`
+ - `يرجى التأكد من تحديد الوضع الصحيح!`
+ - `قد يكون تنسيق الأرشيف الخاص بك غير مدعوم 😔`
+ 
+**what should be done?**
+  - `Please make sure the archive is not damaged`
+  - `Please make sure you select the correct mode!`
+  - `Your archive format may not be supported 😔`
+  
+**report: @ta_ja199 **
     """
 
     ERROR_TXT = """
-**Error Happend 😕!**
-
+**حدث خطا**
 **ERROR:** {}
-
-
-**Please report this at @Nexa_bots if you think this is a serious error**
+**report: @ta_ja199 **
     """
 
     CANCELLED_TXT = """
 **{} ✅!**
-
-`Now all of your files have been deleted from my server 😏!`
-    """
+`الآن تم حذف جميع ملفاتك من خادمي 😏!`
+`𝑁𝑂𝑊 𝐴𝐿𝐿 𝑌𝑂𝑈𝑅 𝐹𝐼𝐿𝐸𝑆 𝐻𝐴𝑉𝐸 𝐵𝐸𝐸𝑁 𝐷𝐸𝐿𝐸𝑇𝐸𝐷 𝐹𝑅𝑂𝑀 𝑀𝑌 𝑆𝐸𝑅𝑉𝐸𝑅 😏!`
+   
+   """
 
     CLEAN_TXT = """
-**Are sure want to delete your files from my server 🤔?**
-
+**هل تريد بالتأكيد حذف ملفاتك من خادمي 🤔؟**
+**Now all of your files have been deleted from my server 😏**
+**ملاحظة:** `لا يمكن التراجع عن هذا الإجراء!`
 **Note:** `This action cannot be undone!`
     """
 
     SELECT_UPLOAD_MODE_TXT = """
-`Please select the upload mode by clicking on below buttons!`
-
-**Current Upload mode is:** `{}`
+`الرجاء تحديد وضع التحميل من خلال النقر على الأزرار أدناه!`
+`Please select a download mode by clicking on the buttons below!`
+**Current Upload mode is(وضع التحميل الحالي هو):** `{}`
 """
     CHANGED_UPLOAD_MODE_TXT = """
-**Successfully changed upload mode to** `{}` **✅!**
+**Successfully changed upload mode to(تم تغيير وضع التحميل بنجاح إلى)** `{}` **✅!**
 """
 
 
@@ -227,4 +190,4 @@ If you want to set-up your own thumbnail, you can do so using following commands
 ERROR_MSGS = [
     "Error",
     "Can't open as archive"
-]
+    ]

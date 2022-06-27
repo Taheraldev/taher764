@@ -30,14 +30,14 @@ async def progress_for_pyrogram(current, total, ud_type, message, start):
             ''.join(["░" for i in range(20 - math.floor(percentage / 5))]),
             round(percentage, 2))
 
-        tmp = progress + "{0} of {1}\n**Speed:** {2}/s\n**ETA:** {3}\n".format(
+        tmp = progress + "{0} of {1}\n**Speed(سرعة)🏃‍♂️:** {2}/s\n**ETA(وقت)⏱:** {3}\n".format(
             humanbytes(current),
             humanbytes(total),
             humanbytes(speed),
             estimated_total_time if estimated_total_time != '' else "0 s"
         )
         try:
-            await message.edit(text="{}\n {} \n\n**Powered by @NexaBotsUpdates**".format(ud_type, tmp))
+            await message.edit(text="{}\n {} \n\n**Powered by @engineering_electrical9**".format(ud_type, tmp))
         except:
             pass
 
@@ -87,7 +87,7 @@ def check_logs():
                 return print("TF? Chat is not private")
             else:
                 client.send_message(
-                    chat_id=Config.LOGS_CHANNEL, text="`Unzipper-Bot has Successfully Started!` \n\n**Powered by @NexaBotsUpdates**")
+                    chat_id=Config.LOGS_CHANNEL, text="`بدا البوت باستخراج بنجاح!` \n\n**Powered by ❤ @engineering_electrical9**")
         else:
             print("No Log Channel ID is Given! Imma leaving Now!")
             exit()
